@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+  web:
+    image: go-api-learn
+    container_name: learn-api-with-go
+    ports:
+      - 9090:9090
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./config.json:/app/config.json
+
+  postgres:
+    image: postgres:15
+    container_name: go-api-learn-postgres
+    volumes:
+      - ./article.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=article
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
